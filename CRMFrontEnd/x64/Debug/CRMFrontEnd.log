@@ -1,0 +1,31 @@
+﻿  stdafx.cpp
+  CRMFrontEnd.cpp
+CRMFrontEnd.rc(86): warning RC2182: duplicate dialog control ID 0
+  
+CRMFrontEnd.rc(89): warning RC2182: duplicate dialog control ID 0
+  
+CRMFrontEnd.rc(90): warning RC2182: duplicate dialog control ID 0
+  
+CRMFrontEnd.rc(91): warning RC2182: duplicate dialog control ID 0
+  
+CRMFrontEnd.rc(92): warning RC2182: duplicate dialog control ID 0
+  
+CRMFrontEnd.rc(93): warning RC2182: duplicate dialog control ID 0
+  
+CRMFrontEnd.rc(94): warning RC2182: duplicate dialog control ID 0
+  
+CRMFrontEnd.rc(95): warning RC2182: duplicate dialog control ID 0
+  
+CRMFrontEnd.rc(96): warning RC2182: duplicate dialog control ID 0
+  
+CRMFrontEnd.rc(97): warning RC2182: duplicate dialog control ID 0
+  
+CRMFrontEnd.rc(98): warning RC2182: duplicate dialog control ID 0
+  
+CRMFrontEnd.rc(99): warning RC2182: duplicate dialog control ID 0
+  
+CRMFrontEnd.rc(100): warning RC2182: duplicate dialog control ID 0
+  
+CRMFrontEnd.rc(102): warning RC2182: duplicate dialog control ID 0
+  
+  CRMFrontEnd.vcxproj -> D:\source\CRM\x64\Debug\CRMFrontEnd.exe
