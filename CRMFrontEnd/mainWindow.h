@@ -26,6 +26,6 @@ extern CRMBackEnd backEnd;
 
 
 void InitMainWindow(HWND hDlg);
-void InitCurContactDialog(HWND hDlg, std::string searchItem);
-BOOL CheckInput(WPARAM wParam, std::string &output);
-INT_PTR CALLBACK   CurContactView(HWND, UINT, WPARAM, LPARAM);
+void InitCurCustomerDialog(HWND hDlg, std::string searchItem,int searchType); 
+BOOL CheckMainWindowInput(WPARAM wParam, std::string &output);
+INT_PTR CALLBACK   CurCustomerView(HWND, UINT, WPARAM, LPARAM);

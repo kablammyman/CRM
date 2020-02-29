@@ -7,14 +7,14 @@ CRMBackEnd::CRMBackEnd()
 }
 void CRMBackEnd::DoEmailLookup(string email )
 {
-	curContact = crm->GetContactByEmail(email);
+	curContact = crm->GetCustomerByEmail(email);
 }
 void CRMBackEnd::DoNameLookup(string name)
 {
 }
 void CRMBackEnd::DoPhoneLookup(string phone )
 {
-	curContact = crm->GetContactByPhone(phone);
+	curContact = crm->GetCustomerByPhone(phone);
 }
 
 void CRMBackEnd::SaveCurrentInfo()

@@ -9,7 +9,7 @@ class CRMBackEnd
 	CRM *crm;
 	
 public:
-	CRM::Contact curContact;
+	CRM::Customer curContact;
 	CRMBackEnd();
 	void DoEmailLookup(string email);
 	void DoNameLookup(string name);
@@ -21,8 +21,8 @@ int test()
 {
 	CRM crm("D:\\source\\CRM\\CRM.db");
 
-	//CRM::Contact contact= crm.GetContact("schwheatbaybeeghrey@gmail.com");
-	//cout << contact.name << endl;
+	//CRM::Customer customer= crm.GetContact("schwheatbaybeeghrey@gmail.com");
+	//cout << customer.name << endl;
 	
 	//crm.DeactivateOldCustomers();
 	

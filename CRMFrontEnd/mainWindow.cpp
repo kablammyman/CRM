@@ -34,6 +34,7 @@ wstring ConvertToWindowsString(string s)
 	 wstring ret = wtext;
 	 return ret;
 }*/
+//----------------------------------------------------------------------------------------------------------------
 //the cords was created with a resrouce editor, everything else was done by hand :(
 void InitMainWindow(HWND hDlg)
 {
@@ -55,55 +56,73 @@ void InitMainWindow(HWND hDlg)
 	phoneButton = CreateWindow(TEXT("BUTTON"), TEXT("Go!"), WS_VISIBLE | WS_CHILD | WS_TABSTOP | 0x00000001, 465, 98, 90, 23, hDlg, (HMENU)IDC_PHONE_LOOKUP_OK, NULL, NULL);
 
 	
-	curContactsList = CreateWindow(TEXT("STATIC"), TEXT("People To Contact Today"), WS_VISIBLE | WS_CHILD | WS_GROUP | SS_LEFT, 398, 179, 143, 16, hDlg, (HMENU)0, NULL, NULL);
+	curContactsList = CreateWindow(TEXT("STATIC"), TEXT("People To Customer Today"), WS_VISIBLE | WS_CHILD | WS_GROUP | SS_LEFT, 398, 179, 143, 16, hDlg, (HMENU)0, NULL, NULL);
 
 	
-	createContactButton = CreateWindow(TEXT("BUTTON"), TEXT("Create New Contact"), WS_VISIBLE | WS_CHILD | WS_TABSTOP | 0x00000001, 345, 512, 225, 98, hDlg, (HMENU)IDC_CREATE_CONTACT_OK, NULL, NULL);
+	createContactButton = CreateWindow(TEXT("BUTTON"), TEXT("Create New Customer"), WS_VISIBLE | WS_CHILD | WS_TABSTOP | 0x00000001, 345, 512, 225, 98, hDlg, (HMENU)IDC_ADD_CUSTOMER, NULL, NULL);
 }
-
+//----------------------------------------------------------------------------------------------------------------
 //the cords was created with a resrouce editor, everything else was done by hand :(
-void InitCurContactDialog(HWND hDlg,string searchItem)
+void InitCurCustomerDialog(HWND hDlg,string searchItem,int searchType)
 {
-	
-	backEnd.DoEmailLookup(searchItem);
-	curContactDialog = CreateDialog(mainInst, MAKEINTRESOURCE(IDD_CONTACT_VIEW), mainWindowHandle, CurContactView);
+	bool search = true;
+	if (searchType == IDC_EMAIL_LOOKUP_OK)
+		backEnd.DoEmailLookup(searchItem);
+	else if(searchType == IDC_PHONE_LOOKUP_OK)
+		backEnd.DoPhoneLookup(searchItem);
+	if (searchType == IDC_ADD_CUSTOMER)
+	{
+		search = false;
+		backEnd.curContact.dateAdded = DateTime::Now();
+		backEnd.curContact.lastContactDate = DateTime::Now();
+	}
 
+	if(search && backEnd.curContact.id < 1)
+	{
+		MessageBox(NULL, "Contact is not in the database" , NULL, NULL);
+		return;
+	}
+
+	
+	curContactDialog = CreateDialog(mainInst, MAKEINTRESOURCE(IDD_CONTACT_VIEW), mainWindowHandle, CurCustomerView);
+
+	
 	//int x = GetDlgItemText(curContactDialog, IDC_EMAIL_LOOKUP, buffer, MAX_PATH);
 
-	SetDlgItemText(curContactDialog, IDC_CONTACT_NAME,backEnd.curContact.name.c_str());
-	SetDlgItemText(curContactDialog, IDC_CONTACT_EMAIL,backEnd.curContact.email.c_str());
-	SetDlgItemText(curContactDialog, IDC_CONTACT_PHONE,backEnd.curContact.phone.c_str());
-	SetDlgItemText(curContactDialog, IDC_CONTACT_NEXT_CONTACT_DATE,backEnd.curContact.nextContactDate.ToString().c_str());
+	SetDlgItemText(curContactDialog, IDC_CUSTOMER_NAME,backEnd.curContact.name.c_str());
+	SetDlgItemText(curContactDialog, IDC_CUSTOMER_EMAIL,backEnd.curContact.email.c_str());
+	SetDlgItemText(curContactDialog, IDC_CUSTOMER_PHONE,backEnd.curContact.phone.c_str());
+	SetDlgItemText(curContactDialog, IDC_CUSTOMER_NEXT_CONTACT_DATE,backEnd.curContact.nextContactDate.ToString().c_str());
 	
 	string uniqueName = "Unique Name: " + backEnd.curContact.email;
-	SetDlgItemText(curContactDialog, IDC_CONTACT_UNIQUE_NAME,  uniqueName.c_str());
+	SetDlgItemText(curContactDialog, IDC_CUSTOMER_UNIQUE_NAME,  uniqueName.c_str());
 	
 	//this does the same thing
-	//HWND temp = GetDlgItem(curContactDialog, IDC_CONTACT_UNIQUE_NAME);
+	//HWND temp = GetDlgItem(curContactDialog, IDC_CUSTOMER_UNIQUE_NAME);
 	//SetWindowText(temp, L"Unique Name: victor.reynolds");
 
 	string numContacts = "Num Contacts: " + to_string(backEnd.curContact.numContacts);
-	SetDlgItemText(curContactDialog, IDC_CONTACT_NUM_CONTACTS, numContacts.c_str());
+	SetDlgItemText(curContactDialog, IDC_CUSTOMER_NUM_CONTACTS, numContacts.c_str());
 
 
-	string lastContact = "Last Contact:" + backEnd.curContact.lastContactDate.ToString();
-	SetDlgItemText(curContactDialog, IDC_CONTACT_LAST_CONTACT, lastContact.c_str());
+	string lastContact = "Last Customer:" + backEnd.curContact.lastContactDate.ToString();
+	SetDlgItemText(curContactDialog, IDC_CUSTOMER_LAST_CONTACT, lastContact.c_str());
 
-	string lastContactType = "Last Contact Type: has not been implemented yet";//concat strings here
-	SetDlgItemText(curContactDialog, IDC_CONTACT_LAST_CONTACT_TYPE, lastContactType.c_str());
+	string lastContactType = "Last Customer Type: has not been implemented yet";//concat strings here
+	SetDlgItemText(curContactDialog, IDC_CUSTOMER_LAST_CONTACT_TYPE, lastContactType.c_str());
 
 
-	SetDlgItemText(curContactDialog, IDC_CONTACT_NOTES,backEnd.curContact.notes.c_str() );
+	SetDlgItemText(curContactDialog, IDC_CUSTOMER_NOTES,backEnd.curContact.notes.c_str() );
 
-    string contactAddedDate = "Contact Added: "+ backEnd.curContact.dateAdded.ToString();
-	SetDlgItemText(curContactDialog, IDC_CONTACT_ADDED_DATE, contactAddedDate.c_str());
+    string contactAddedDate = "Customer Added: "+ backEnd.curContact.dateAdded.ToString();
+	SetDlgItemText(curContactDialog, IDC_CUSTOMER_ADDED_DATE, contactAddedDate.c_str());
 
 
 	ShowWindow(curContactDialog, SW_SHOW);
 }
-
-// Message handler for main contact box.
-INT_PTR CALLBACK CurContactView(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+//----------------------------------------------------------------------------------------------------------------
+// Message handler for main customer box.
+INT_PTR CALLBACK CurCustomerView(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     UNREFERENCED_PARAMETER(lParam);
     switch (message)
@@ -129,9 +148,10 @@ INT_PTR CALLBACK CurContactView(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
     }
     return (INT_PTR)FALSE;
 }
-
-BOOL CheckInput(WPARAM wParam, std::string &output)
+//----------------------------------------------------------------------------------------------------------------
+BOOL CheckMainWindowInput(WPARAM wParam, std::string &output)
 {
+	
 	if (wParam == IDC_EMAIL_LOOKUP_OK)
 	{
 		char buffer[MAX_PATH];
@@ -145,11 +165,29 @@ BOOL CheckInput(WPARAM wParam, std::string &output)
 			sprintf_s(temp,"error: %d", x);
 			MessageBox(NULL, temp , NULL, NULL);
 		}
-		
 		output = buffer;
 		return (INT_PTR)TRUE;
 	}
-	
 
+	if (wParam == IDC_PHONE_LOOKUP_OK)
+	{
+		char buffer[MAX_PATH];
+		int x = GetDlgItemText(mainWindowHandle, IDC_PHONE_LOOKUP, buffer, MAX_PATH);
+		if (x == 0)
+		{
+			x = GetLastError();
+			char temp[12];
+
+			//wsprintf(temp,L"error: %d", x);
+			sprintf_s(temp,"error: %d", x);
+			MessageBox(NULL, temp , NULL, NULL);
+		}
+		output = buffer;
+		return (INT_PTR)TRUE;
+	}
+	else if (wParam == IDC_ADD_CUSTOMER)
+	{
+		return (INT_PTR)TRUE;
+	}
 	return FALSE;
 }
