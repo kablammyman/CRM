@@ -27,12 +27,24 @@
     <ClInclude Include="CRMFrontEnd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="mainWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CRMBackEnd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CRMFrontEnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mainWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CRMBackEnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
