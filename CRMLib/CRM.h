@@ -42,21 +42,37 @@ public:
 			email = e;
 			notes = no;
 		}
+		void Clear()
+		{
+			id = 0;
+			name.clear();
+			phone.clear();
+			email.clear();
+			notes.clear();
+			uniqueName.clear();
+			lastContactID = 0;
+			active = true;
+			numContacts = 0;
+			lastContactDate = DateTime::Now();
+			nextContactDate = DateTime::Now();
+			dateAdded = DateTime::Now();
+		}
 	};
 	CRM(string dbPath);
 
 	void DebugPrint(string message);
 
-	void AddNewEntryoCRM(string name, string email, string phone, string notes);
-	void UpdateCustomerEntry(CRM::Customer & customer);
+	bool AddNewCustomerEntry(CRM::Customer & customer);
+	bool UpdateCustomerEntry(CRM::Customer & customer);
 	//after each interaction with a customer, call this method
 	void   UpdateContactAndNotes(int ID, string notes);
 	vector<Customer> GetTodaysContacts();
 	vector<Customer> GetAllActiveContacts();
 
-	Customer  GetCustomerByEmail(string email);
-	Customer  GetCustomerByPhone(string phone);
-	Customer  GetCustomerByID(int id);
+	Customer GetCustomerByEmail(string email);
+	Customer GetCustomerByPhone(string phone);
+	Customer GetCustomerByName(string name);
+	Customer GetCustomerByID(int id);
 	
 	void DeleteContact(Customer &customer);
 	void DeleteContactByEmail(string email);

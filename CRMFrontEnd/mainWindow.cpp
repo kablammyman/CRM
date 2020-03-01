@@ -34,6 +34,24 @@ wstring ConvertToWindowsString(string s)
 	 wstring ret = wtext;
 	 return ret;
 }*/
+
+string GetTextFieldData(HWND windowHandle, int dialogID,  bool msgboxOnError = true)
+{
+	char buffer[MAX_PATH];
+	string ret;
+	int x = GetDlgItemText(windowHandle, dialogID, buffer, MAX_PATH);
+	if (x == 0 && msgboxOnError)
+	{
+		x = GetLastError();
+		char temp[12];
+
+		//wsprintf(temp,L"error: %d", x);
+		sprintf_s(temp,"error: %d", x);
+		MessageBox(NULL, temp , NULL, NULL);
+	}
+	ret = buffer;
+	return ret;
+}
 //----------------------------------------------------------------------------------------------------------------
 //the cords was created with a resrouce editor, everything else was done by hand :(
 void InitMainWindow(HWND hDlg)
@@ -70,9 +88,13 @@ void InitCurCustomerDialog(HWND hDlg,string searchItem,int searchType)
 		backEnd.DoEmailLookup(searchItem);
 	else if(searchType == IDC_PHONE_LOOKUP_OK)
 		backEnd.DoPhoneLookup(searchItem);
+	else if(searchType == IDC_NAME_LOOKUP_OK)
+		backEnd.DoNameLookup(searchItem);
+
 	if (searchType == IDC_ADD_CUSTOMER)
 	{
 		search = false;
+		backEnd.curContact.Clear();
 		backEnd.curContact.dateAdded = DateTime::Now();
 		backEnd.curContact.lastContactDate = DateTime::Now();
 	}
@@ -93,9 +115,7 @@ void InitCurCustomerDialog(HWND hDlg,string searchItem,int searchType)
 	SetDlgItemText(curContactDialog, IDC_CUSTOMER_EMAIL,backEnd.curContact.email.c_str());
 	SetDlgItemText(curContactDialog, IDC_CUSTOMER_PHONE,backEnd.curContact.phone.c_str());
 	SetDlgItemText(curContactDialog, IDC_CUSTOMER_NEXT_CONTACT_DATE,backEnd.curContact.nextContactDate.ToString().c_str());
-	
-	string uniqueName = "Unique Name: " + backEnd.curContact.email;
-	SetDlgItemText(curContactDialog, IDC_CUSTOMER_UNIQUE_NAME,  uniqueName.c_str());
+	SetDlgItemText(curContactDialog, IDC_CUSTOMER_UNIQUE_NAME,  backEnd.curContact.uniqueName.c_str());
 	
 	//this does the same thing
 	//HWND temp = GetDlgItem(curContactDialog, IDC_CUSTOMER_UNIQUE_NAME);
@@ -105,10 +125,10 @@ void InitCurCustomerDialog(HWND hDlg,string searchItem,int searchType)
 	SetDlgItemText(curContactDialog, IDC_CUSTOMER_NUM_CONTACTS, numContacts.c_str());
 
 
-	string lastContact = "Last Customer:" + backEnd.curContact.lastContactDate.ToString();
+	string lastContact = "Last Contact Date:" + backEnd.curContact.lastContactDate.ToString();
 	SetDlgItemText(curContactDialog, IDC_CUSTOMER_LAST_CONTACT, lastContact.c_str());
 
-	string lastContactType = "Last Customer Type: has not been implemented yet";//concat strings here
+	string lastContactType = "Last Contact Type: has not been implemented yet";//concat strings here
 	SetDlgItemText(curContactDialog, IDC_CUSTOMER_LAST_CONTACT_TYPE, lastContactType.c_str());
 
 
@@ -121,6 +141,25 @@ void InitCurCustomerDialog(HWND hDlg,string searchItem,int searchType)
 	ShowWindow(curContactDialog, SW_SHOW);
 }
 //----------------------------------------------------------------------------------------------------------------
+//the cords was created with a resrouce editor, everything else was done by hand :(
+void FillCustomerStructFromCustomerDialog()
+{
+	backEnd.curContact.name = GetTextFieldData(curContactDialog, IDC_CUSTOMER_NAME);
+	backEnd.curContact.email = GetTextFieldData(curContactDialog, IDC_CUSTOMER_EMAIL);
+	backEnd.curContact.phone = GetTextFieldData(curContactDialog, IDC_CUSTOMER_PHONE);
+	backEnd.curContact.uniqueName = GetTextFieldData(curContactDialog, IDC_CUSTOMER_UNIQUE_NAME);
+	
+	backEnd.curContact.nextContactDate = DateTime (GetTextFieldData(curContactDialog, IDC_CUSTOMER_NEXT_CONTACT_DATE));
+	backEnd.curContact.lastContactDate = DateTime::Now();
+	backEnd.curContact.dateAdded = DateTime::Now();
+	backEnd.curContact.notes = GetTextFieldData(curContactDialog, IDC_CUSTOMER_NOTES);
+
+	/*if (!backEnd.curContact.email.empty())
+		backEnd.curContact.uniqueName = backEnd.curContact.email;
+	else
+		backEnd.curContact.uniqueName = backEnd.curContact.name + "_"+DateTime::Now();*/
+}
+//----------------------------------------------------------------------------------------------------------------
 // Message handler for main customer box.
 INT_PTR CALLBACK CurCustomerView(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -131,16 +170,31 @@ INT_PTR CALLBACK CurCustomerView(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
         return (INT_PTR)TRUE;
 
     case WM_COMMAND:
-        if (LOWORD(wParam) == IDOK)
+        if (LOWORD(wParam) == IDC_SAVE_CUSTOMER)
         {
             //update db info
-			backEnd.SaveCurrentInfo();
-
-			EndDialog(hDlg, LOWORD(wParam));
-            return (INT_PTR)TRUE;
+			FillCustomerStructFromCustomerDialog();
+			if (!backEnd.SaveCurrentInfo())
+			{
+				MessageBox(NULL, "error saving to database...try again?", NULL, NULL);
+			}
+			else
+			{
+				backEnd.curContact.Clear();
+				EndDialog(hDlg, LOWORD(wParam));
+				return (INT_PTR)TRUE;
+			}
         }
+		if (LOWORD(wParam) == IDC_ADD_CONTACT)
+        {
+          
+			MessageBox(NULL, "this will be wheer to add a contact detail", NULL, NULL);
+		
+        }
+
 		if (LOWORD(wParam) == IDCANCEL)
 		{
+			backEnd.curContact.Clear();
 			EndDialog(hDlg, LOWORD(wParam));
             return (INT_PTR)TRUE;
 		}
@@ -154,35 +208,17 @@ BOOL CheckMainWindowInput(WPARAM wParam, std::string &output)
 	
 	if (wParam == IDC_EMAIL_LOOKUP_OK)
 	{
-		char buffer[MAX_PATH];
-		int x = GetDlgItemText(mainWindowHandle, IDC_EMAIL_LOOKUP, buffer, MAX_PATH);
-		if (x == 0)
-		{
-			x = GetLastError();
-			char temp[12];
-
-			//wsprintf(temp,L"error: %d", x);
-			sprintf_s(temp,"error: %d", x);
-			MessageBox(NULL, temp , NULL, NULL);
-		}
-		output = buffer;
+		output = GetTextFieldData(mainWindowHandle, IDC_EMAIL_LOOKUP);
 		return (INT_PTR)TRUE;
 	}
-
+	if (wParam == IDC_NAME_LOOKUP_OK)
+	{
+		output = GetTextFieldData(mainWindowHandle, IDC_NAME_LOOKUP);
+		return (INT_PTR)TRUE;
+	}
 	if (wParam == IDC_PHONE_LOOKUP_OK)
 	{
-		char buffer[MAX_PATH];
-		int x = GetDlgItemText(mainWindowHandle, IDC_PHONE_LOOKUP, buffer, MAX_PATH);
-		if (x == 0)
-		{
-			x = GetLastError();
-			char temp[12];
-
-			//wsprintf(temp,L"error: %d", x);
-			sprintf_s(temp,"error: %d", x);
-			MessageBox(NULL, temp , NULL, NULL);
-		}
-		output = buffer;
+		output = GetTextFieldData(mainWindowHandle, IDC_PHONE_LOOKUP);
 		return (INT_PTR)TRUE;
 	}
 	else if (wParam == IDC_ADD_CUSTOMER)

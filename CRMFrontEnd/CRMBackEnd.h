@@ -14,19 +14,5 @@ public:
 	void DoEmailLookup(string email);
 	void DoNameLookup(string name);
 	void DoPhoneLookup(string phone);
-	void SaveCurrentInfo();
+	bool SaveCurrentInfo();
 };
-/*
-int test()
-{
-	CRM crm("D:\\source\\CRM\\CRM.db");
-
-	//CRM::Customer customer= crm.GetContact("schwheatbaybeeghrey@gmail.com");
-	//cout << customer.name << endl;
-	
-	//crm.DeactivateOldCustomers();
-	
-	return 0;
-}
-
-*/
