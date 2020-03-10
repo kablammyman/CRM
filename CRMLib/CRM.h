@@ -14,11 +14,19 @@ public:
 	struct ContactDetails
 	{
 		int id;
-		int contactID;
+		int customerID;
 		DateTime date;
 		string type;//phone,email,fb message, etc
 		bool successfulContact;
 		string notes;
+		void Clear()
+		{
+			id = 0;
+			customerID = 0;
+			type.clear();
+			notes.clear();
+			date = DateTime::Now();
+		}
 	};
 	struct Customer
 	{
@@ -68,6 +76,7 @@ public:
 	void   UpdateContactAndNotes(int ID, string notes);
 	vector<Customer> GetTodaysContacts();
 	vector<Customer> GetAllActiveContacts();
+	vector<CRM::Customer> GetOverdueContacts();
 
 	Customer GetCustomerByEmail(string email);
 	Customer GetCustomerByPhone(string phone);
@@ -85,7 +94,7 @@ public:
 	void IncNumContacts(int ID);
 	void UpdateNotes(int ID, string notes);
 
-	void AddNewContactEntry(int customerID, string contactType, string notes, bool successful);
+	bool AddNewContactEntry(CRM::ContactDetails &contact);
 
 private:
 	void FillSingleCustomerFromDBResults(vector <DatabaseController::DBResult> &dbResults, CRM::Customer &customer,int index);

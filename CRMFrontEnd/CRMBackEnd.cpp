@@ -19,21 +19,37 @@ CRMBackEnd::CRMBackEnd()
 }
 void CRMBackEnd::DoEmailLookup(string email )
 {
-	curContact = crm->GetCustomerByEmail(email);
+	curCustomer = crm->GetCustomerByEmail(email);
 }
 void CRMBackEnd::DoNameLookup(string name)
 {
-	curContact = crm->GetCustomerByName(name);
+	curCustomer = crm->GetCustomerByName(name);
 }
 void CRMBackEnd::DoPhoneLookup(string phone )
 {
-	curContact = crm->GetCustomerByPhone(phone);
+	curCustomer = crm->GetCustomerByPhone(phone);
 }
 
 bool CRMBackEnd::SaveCurrentInfo()
 {
-	if (curContact.id < 1)//new entry
-		return crm->AddNewCustomerEntry(curContact);
+	if (curCustomer.id < 1)//new entry
+		return crm->AddNewCustomerEntry(curCustomer);
 	else
-		return crm->UpdateCustomerEntry(curContact);
+		return crm->UpdateCustomerEntry(curCustomer);
+}
+
+bool CRMBackEnd::SaveCurrentContactInfo()
+{
+	//int customerID, string contactType, string notes, bool successful
+	return crm->AddNewContactEntry(curContactDetails);
+}
+
+void CRMBackEnd::FillTodaysCusterContactList(vector<CRM::Customer> &list)
+{
+	list = crm->GetTodaysContacts();
+	vector<CRM::Customer> overdue = crm->GetOverdueContacts();
+	for (int i = 0; i < overdue.size(); i++)
+	{
+		list.push_back(overdue[i]);
+	}
 }
