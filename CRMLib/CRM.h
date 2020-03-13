@@ -9,6 +9,7 @@ class CRM
 private:
 	DatabaseController dbController;
 	bool verbose = true;
+	vector<string> customerQuereyList;
 	vector<string> contactQuereyList;
 public:
 	struct ContactDetails
@@ -95,7 +96,9 @@ public:
 	void UpdateNotes(int ID, string notes);
 
 	bool AddNewContactEntry(CRM::ContactDetails &contact);
-
+	ContactDetails GetContactEntry(int contactID);
+	vector<CRM::ContactDetails> GetAllCustomerContact(int customerID);
 private:
 	void FillSingleCustomerFromDBResults(vector <DatabaseController::DBResult> &dbResults, CRM::Customer &customer,int index);
+	void FillSingleContactDetailFromDBResults(vector <DatabaseController::DBResult>& dbResults, CRM::ContactDetails& contact, int index);
 };
