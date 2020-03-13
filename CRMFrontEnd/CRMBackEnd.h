@@ -19,5 +19,5 @@ public:
 	bool SaveCurrentInfo();
 	bool SaveCurrentContactInfo();
 	void FillTodaysCusterContactList(vector<CRM::Customer> &list);
-
+	void FillCurCusterContactList(int customerID, vector<CRM::ContactDetails>& list);
 };

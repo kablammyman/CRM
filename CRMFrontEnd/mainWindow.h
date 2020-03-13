@@ -28,11 +28,12 @@ extern 	HWND curContactsList;
 extern 	HWND createContactButton;
 extern  HWND mainListView;
 extern  HWND succesfulContactCheck;
+extern  HWND convoListView;
 
 extern CRMBackEnd backEnd;
 
 extern vector<CRM::Customer> todaysContactList;
-
+extern vector<CRM::ContactDetails> curCustomerConversationList;
 void InitMainWindow(HWND hDlg);
 bool ProcessMainScreenButtons(string searchItem, int searchType);
 void InitCurCustomerDialog();
@@ -42,9 +43,12 @@ BOOL CheckMainWindowInput(WPARAM wParam, std::string &output);
 INT_PTR CALLBACK CurCustomerView(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK AddCustomerContactView(HWND, UINT, WPARAM, LPARAM);
 
-HWND CreateListView(HWND hwndParent, vector<string> colNames, int x, int y, int w, int h, int size);
-BOOL FillListViewItems(HWND hWndListView, vector<CRM::Customer> items);
-LRESULT NotifyHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+HWND CreateListView(HWND hwndParent, int windowsID, vector<string> colNames, int x, int y, int w, int h, int size);
+BOOL FillCustomerListViewItems(HWND hWndListView, vector<CRM::Customer> items);
+BOOL FillCustomerConvoListViewItems(HWND hWndListView, vector<CRM::ContactDetails> items);
+
+LRESULT MainWindowNotifyHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+LRESULT CusCustomerNotifyHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 
 /*

@@ -60,7 +60,7 @@
 #define IDC_PHONE_LOOKUP_OK					1027
 
 #define IDC_ADD_CUSTOMER					1028
-
+#define IDC_CONVO_LIST_VIEW					1029
 
 // Next default values for new objects
 //

@@ -25,8 +25,10 @@ HWND succesfulContactCheck;
 HWND curContactsList;
 HWND createContactButton;
 HWND mainListView;
+HWND convoListView;
 CRMBackEnd backEnd;
 vector<CRM::Customer> todaysContactList;
+vector<CRM::ContactDetails> curCustomerConversationList;
 
 string GetTextFieldData(HWND windowHandle, int dialogID,  bool msgboxOnError = true)
 {
@@ -88,11 +90,11 @@ void InitMainWindow(HWND hDlg)
 	
 	curContactsList = CreateWindow(TEXT("STATIC"), TEXT("People To Contact Today"), WS_VISIBLE | WS_CHILD | WS_GROUP | SS_LEFT, 398, 170, 143, 16, hDlg, (HMENU)0, NULL, NULL);
 	vector<string> headers = { "name","email","next contact","last contact","days over due" };
-	mainListView = CreateListView(mainWindowHandle, headers,staticX, 190, WINDOW_WIDTH - (staticX*4)  ,WINDOW_HEIGHT/2,150);
+	mainListView = CreateListView(mainWindowHandle, IDM_LIST_VIEW_RESULTS, headers,staticX, 190, WINDOW_WIDTH - (staticX*4)  ,WINDOW_HEIGHT/2,150);
 
 	
 	backEnd.FillTodaysCusterContactList(todaysContactList);
-	FillListViewItems(mainListView, todaysContactList);
+	FillCustomerListViewItems(mainListView, todaysContactList);
 	createContactButton = CreateWindow(TEXT("BUTTON"), TEXT("Create New Customer"), WS_VISIBLE | WS_CHILD | WS_TABSTOP | 0x00000001, (WINDOW_WIDTH /2) - (bigButtonWidth/2), WINDOW_HEIGHT - 194, bigButtonWidth, 98, hDlg, (HMENU)IDC_ADD_CUSTOMER, NULL, NULL);
 }
 //----------------------------------------------------------------------------------------------------------------
@@ -155,15 +157,33 @@ void InitCurCustomerDialog()
     string contactAddedDate = "Customer Added: "+ backEnd.curCustomer.dateAdded.ToString();
 	SetDlgItemText(curContactDialog, IDC_CUSTOMER_ADDED_DATE, contactAddedDate.c_str());
 
+	backEnd.FillCurCusterContactList(backEnd.curCustomer.id, curCustomerConversationList);
 
+	vector<string> headers = { "Date","type","notes","Successful"};
+	convoListView = CreateListView(curContactDialog,IDC_CONVO_LIST_VIEW, headers, 460, 300, 400, 185, 100);
+	
+	FillCustomerConvoListViewItems(convoListView, curCustomerConversationList);
 	ShowWindow(curContactDialog, SW_SHOW);
 }
 //----------------------------------------------------------------------------------------------------------------
 //the cords was created with a resrouce editor, everything else was done by hand :(
-void InitAddCustomerContactDialog()
+void InitAddCustomerContactDialog(bool isNewContact)
 {	
 	addCustomerContactDialog = CreateDialog(mainInst, MAKEINTRESOURCE(IDD_ADD_CUSTOMER_CONTACT_VIEW), mainWindowHandle, AddCustomerContactView);
-	succesfulContactCheck = GetDlgItem(mainWindowHandle,IDC_IS_SUCCESSFUL_CONTACT);
+	succesfulContactCheck = GetDlgItem(addCustomerContactDialog, IDC_IS_SUCCESSFUL_CONTACT);
+
+	if (!isNewContact)
+	{
+		SetDlgItemText(addCustomerContactDialog, IDC_CONTACT_NOTES, backEnd.curContactDetails.notes.c_str());
+		SetDlgItemText(addCustomerContactDialog, IDC_CONTACT_TYPE, backEnd.curContactDetails.type.c_str());
+		SetDlgItemText(addCustomerContactDialog, IDC_DATE_CONTACTED, backEnd.curContactDetails.date.ToString().c_str());
+		if(backEnd.curContactDetails.successfulContact)
+			SendMessage(succesfulContactCheck, BM_SETCHECK, BST_CHECKED, 0);
+		else
+			SendMessage(succesfulContactCheck, BM_SETCHECK, BST_UNCHECKED, 0);
+
+	}
+
 	backEnd.curContactDetails.customerID = backEnd.curCustomer.id;
 	ShowWindow(addCustomerContactDialog, SW_SHOW);
 }
@@ -203,17 +223,12 @@ void FillCustomerContactStructFromContactDialog()
 	backEnd.curContactDetails.date = DateTime::Now();// GetTextFieldData(curContactDialog, IDC_CUSTOMER_PHONE, msgBoxOnError);
 	backEnd.curContactDetails.customerID = backEnd.curCustomer.id; // GetTextFieldData(curContactDialog, IDC_CUSTOMER_UNIQUE_NAME, msgBoxOnError);
 
-	
 	//this has a largert buffer for notes
 	backEnd.curContactDetails.notes = GetTextAreaData(addCustomerContactDialog, IDC_CONTACT_NOTES,msgBoxOnError);
-
-	/*if (!backEnd.curCustomer.email.empty())
-		backEnd.curCustomer.uniqueName = backEnd.curCustomer.email;
-	else
-		backEnd.curCustomer.uniqueName = backEnd.curCustomer.name + "_"+DateTime::Now();*/
 }
+
 //----------------------------------------------------------------------------------------------------------------
-HWND CreateListView(HWND hwndParent, vector<string> colNames,int x, int y, int w, int h, int size)
+HWND CreateListView(HWND hwndParent,int windowsID, vector<string> colNames,int x, int y, int w, int h, int size)
 {
 	INITCOMMONCONTROLSEX icex;           // Structure for control initialization.
 	icex.dwICC = ICC_LISTVIEW_CLASSES;
@@ -227,7 +242,7 @@ HWND CreateListView(HWND hwndParent, vector<string> colNames,int x, int y, int w
 		WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS | WS_BORDER | LVS_SHOWSELALWAYS,
 		x, y,w,h,
 		hwndParent,
-		(HMENU)IDM_LIST_VIEW_RESULTS,
+		(HMENU)windowsID,
 		mainInst,
 		NULL);
 	// Add the columns.
@@ -245,7 +260,7 @@ HWND CreateListView(HWND hwndParent, vector<string> colNames,int x, int y, int w
 	return (hWndListView);
 }
 //----------------------------------------------------------------------------------------------------------------
-BOOL FillListViewItems(HWND hWndListView, vector<CRM::Customer> items)
+BOOL FillCustomerListViewItems(HWND hWndListView, vector<CRM::Customer> items)
 {
 	DateTime today;
 	today.SetCurrentDateTime();
@@ -300,12 +315,62 @@ BOOL FillListViewItems(HWND hWndListView, vector<CRM::Customer> items)
 	return TRUE;
 }
 //----------------------------------------------------------------------------------------------------------------
+BOOL FillCustomerConvoListViewItems(HWND hWndListView, vector<CRM::ContactDetails> items)
+{
+	//for (size_t index = 0; index < items.size(); index++)
+	//the lsit view push items to the bottom of the list as you add them
+	string temp;
+	for (int index = items.size() - 1; index >= 0; index--)
+	{
+		LVITEM lvI;
+
+		// Initialize LVITEM members that are common to all items.
+		lvI.mask = LVIF_TEXT | LVIF_PARAM; //// Initialize LV_ITEM members that are common to all items.
+		lvI.stateMask = 0;
+		lvI.state = 0;
+		// structures
+
+		lvI.mask = LVIF_TEXT;   // Text Style
+		lvI.cchTextMax = 256; // Max size of test
+		lvI.iItem = 0;          // choose item  
+		lvI.iSubItem = 0;       // Put in first coluom
+		temp = items[index].date.ToString();
+		lvI.pszText = (LPSTR)temp.c_str(); // Text to display 
+
+		SendMessage(hWndListView, LVM_INSERTITEM, 0, (LPARAM)&lvI); // Send info to the Listview
+
+		lvI.iSubItem = 1;
+		lvI.pszText = (LPSTR)items[index].type.c_str();
+		SendMessage(hWndListView, LVM_SETITEM, 0, (LPARAM)&lvI); // Enter text to SubItems
+
+		lvI.iSubItem = 2;
+		lvI.pszText = (LPSTR)items[index].notes.c_str();
+		SendMessage(hWndListView, LVM_SETITEM, 0, (LPARAM)&lvI); // Enter text to SubItems
+
+		lvI.iSubItem = 3;
+		string temp;  
+		if (items[index].successfulContact)
+			temp = "yes";
+		else
+			temp = "no";
+		lvI.pszText = (LPSTR)temp.c_str();
+		SendMessage(hWndListView, LVM_SETITEM, 0, (LPARAM)&lvI); // Enter text to SubItems
+	}
+
+	return TRUE;
+}
+//----------------------------------------------------------------------------------------------------------------
+
 // Message handler for main customer box.
 INT_PTR CALLBACK CurCustomerView(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     UNREFERENCED_PARAMETER(lParam);
     switch (message)
     {
+	case WM_NOTIFY: //for the list view stuff
+		return(CusCustomerNotifyHandler(hDlg, message, wParam, lParam));
+		break;	
+
     case WM_INITDIALOG:
         return (INT_PTR)TRUE;
 
@@ -327,7 +392,7 @@ INT_PTR CALLBACK CurCustomerView(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
         }
 		if (LOWORD(wParam) == IDC_ADD_CONTACT)
         {
-			InitAddCustomerContactDialog();
+			InitAddCustomerContactDialog(true);
 			return (INT_PTR)TRUE;
         }
 
@@ -384,7 +449,7 @@ INT_PTR CALLBACK AddCustomerContactView(HWND hDlg, UINT message, WPARAM wParam, 
     return (INT_PTR)FALSE;
 }
 //----------------------------------------------------------------------------------------------------------------
-LRESULT NotifyHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT MainWindowNotifyHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if (wParam != IDM_LIST_VIEW_RESULTS)
 		return 0L;
@@ -450,6 +515,34 @@ LRESULT NotifyHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		//	ListViewCompareProc,
 		//	(LPARAM)(pNm->iSubItem));
 		break;*/
+
+	default:
+		break;
+	}
+	return 0L;
+}
+//----------------------------------------------------------------------------------------------------------------
+LRESULT CusCustomerNotifyHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	if (wParam != IDC_CONVO_LIST_VIEW)
+		return 0L;
+
+	LV_DISPINFO* pLvdi = (LV_DISPINFO*)lParam;
+
+	switch (pLvdi->hdr.code)
+	{
+	case NM_DBLCLK:
+	{
+		// Get the first selected item
+		int iPos = ListView_GetNextItem(convoListView, -1, LVNI_SELECTED);
+
+		if (iPos != -1)
+		{
+			backEnd.curContactDetails = curCustomerConversationList[iPos];
+			InitAddCustomerContactDialog(false);
+		}
+	}
+	break;
 
 	default:
 		break;

@@ -53,3 +53,8 @@ void CRMBackEnd::FillTodaysCusterContactList(vector<CRM::Customer> &list)
 		list.push_back(overdue[i]);
 	}
 }
+
+void CRMBackEnd::FillCurCusterContactList(int customerID, vector<CRM::ContactDetails>& list)
+{
+	list = crm->GetAllCustomerContact(customerID);	
+}
