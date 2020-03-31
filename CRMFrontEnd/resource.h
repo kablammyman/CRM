@@ -61,6 +61,7 @@
 
 #define IDC_ADD_CUSTOMER					1028
 #define IDC_CONVO_LIST_VIEW					1029
+#define IDC_IS_ACTIVE_CUSTOMER				1030
 
 // Next default values for new objects
 //

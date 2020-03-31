@@ -10,7 +10,7 @@
 
 extern  HINSTANCE mainInst;  
 extern  HWND mainWindowHandle;
-extern  HWND curContactDialog;
+extern  HWND curCustomerDialog;
 extern  HWND addCustomerContactDialog;
 extern 	HWND emailText;
 extern 	HWND emailLookup;
@@ -29,7 +29,7 @@ extern 	HWND createContactButton;
 extern  HWND mainListView;
 extern  HWND succesfulContactCheck;
 extern  HWND convoListView;
-
+extern  HWND activeCustomerCheck;
 extern CRMBackEnd backEnd;
 
 extern vector<CRM::Customer> todaysContactList;

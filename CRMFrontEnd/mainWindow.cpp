@@ -8,7 +8,7 @@
 
 HINSTANCE mainInst;  
 HWND mainWindowHandle;
-HWND curContactDialog;
+HWND curCustomerDialog;
 HWND addCustomerContactDialog;
 HWND emailText;
 HWND emailLookup;
@@ -22,6 +22,7 @@ HWND phoneText;
 HWND phoneLookup;
 HWND phoneButton;
 HWND succesfulContactCheck;
+HWND activeCustomerCheck;
 HWND curContactsList;
 HWND createContactButton;
 HWND mainListView;
@@ -66,6 +67,16 @@ string GetTextAreaData(HWND windowHandle, int dialogID,  bool msgboxOnError = tr
 	return ret;
 }
 //----------------------------------------------------------------------------------------------------------------
+void RefreshMainWindowsContactList()
+{
+	if (mainListView == nullptr)
+		return;
+	ListView_DeleteAllItems(mainListView);
+	todaysContactList.clear();
+	backEnd.FillTodaysCusterContactList(todaysContactList);
+	FillCustomerListViewItems(mainListView, todaysContactList);
+}
+//----------------------------------------------------------------------------------------------------------------
 //the cords was created with a resrouce editor, everything else was done by hand :(
 void InitMainWindow(HWND hDlg)
 {
@@ -93,8 +104,7 @@ void InitMainWindow(HWND hDlg)
 	mainListView = CreateListView(mainWindowHandle, IDM_LIST_VIEW_RESULTS, headers,staticX, 190, WINDOW_WIDTH - (staticX*4)  ,WINDOW_HEIGHT/2,150);
 
 	
-	backEnd.FillTodaysCusterContactList(todaysContactList);
-	FillCustomerListViewItems(mainListView, todaysContactList);
+	RefreshMainWindowsContactList();
 	createContactButton = CreateWindow(TEXT("BUTTON"), TEXT("Create New Customer"), WS_VISIBLE | WS_CHILD | WS_TABSTOP | 0x00000001, (WINDOW_WIDTH /2) - (bigButtonWidth/2), WINDOW_HEIGHT - 194, bigButtonWidth, 98, hDlg, (HMENU)IDC_ADD_CUSTOMER, NULL, NULL);
 }
 //----------------------------------------------------------------------------------------------------------------
@@ -127,43 +137,49 @@ bool ProcessMainScreenButtons(string searchItem,int searchType)
 //the cords was created with a resrouce editor, everything else was done by hand :(
 void InitCurCustomerDialog()
 {	
-	curContactDialog = CreateDialog(mainInst, MAKEINTRESOURCE(IDD_CONTACT_VIEW), mainWindowHandle, CurCustomerView);
+	curCustomerDialog = CreateDialog(mainInst, MAKEINTRESOURCE(IDD_CONTACT_VIEW), mainWindowHandle, CurCustomerView);
 		
 	//int x = GetDlgItemText(curContactDialog, IDC_EMAIL_LOOKUP, buffer, MAX_PATH);
 
-	SetDlgItemText(curContactDialog, IDC_CUSTOMER_NAME,backEnd.curCustomer.name.c_str());
-	SetDlgItemText(curContactDialog, IDC_CUSTOMER_EMAIL,backEnd.curCustomer.email.c_str());
-	SetDlgItemText(curContactDialog, IDC_CUSTOMER_PHONE,backEnd.curCustomer.phone.c_str());
-	SetDlgItemText(curContactDialog, IDC_CUSTOMER_NEXT_CONTACT_DATE,backEnd.curCustomer.nextContactDate.ToString().c_str());
-	SetDlgItemText(curContactDialog, IDC_CUSTOMER_UNIQUE_NAME,  backEnd.curCustomer.uniqueName.c_str());
+	SetDlgItemText(curCustomerDialog, IDC_CUSTOMER_NAME,backEnd.curCustomer.name.c_str());
+	SetDlgItemText(curCustomerDialog, IDC_CUSTOMER_EMAIL,backEnd.curCustomer.email.c_str());
+	SetDlgItemText(curCustomerDialog, IDC_CUSTOMER_PHONE,backEnd.curCustomer.phone.c_str());
+	SetDlgItemText(curCustomerDialog, IDC_CUSTOMER_NEXT_CONTACT_DATE,backEnd.curCustomer.nextContactDate.ToString().c_str());
+	SetDlgItemText(curCustomerDialog, IDC_CUSTOMER_UNIQUE_NAME,  backEnd.curCustomer.uniqueName.c_str());
 	
 	//this does the same thing
 	//HWND temp = GetDlgItem(curContactDialog, IDC_CUSTOMER_UNIQUE_NAME);
 	//SetWindowText(temp, L"Unique Name: victor.reynolds");
 
 	string numContacts = "Num Contacts: " + to_string(backEnd.curCustomer.numContacts);
-	SetDlgItemText(curContactDialog, IDC_CUSTOMER_NUM_CONTACTS, numContacts.c_str());
+	SetDlgItemText(curCustomerDialog, IDC_CUSTOMER_NUM_CONTACTS, numContacts.c_str());
 
 
 	string lastContact = "Last Contact Date:" + backEnd.curCustomer.lastContactDate.ToString();
-	SetDlgItemText(curContactDialog, IDC_CUSTOMER_LAST_CONTACT, lastContact.c_str());
+	SetDlgItemText(curCustomerDialog, IDC_CUSTOMER_LAST_CONTACT, lastContact.c_str());
 
 	string lastContactType = "Last Contact Type: has not been implemented yet";//concat strings here
-	SetDlgItemText(curContactDialog, IDC_CUSTOMER_LAST_CONTACT_TYPE, lastContactType.c_str());
+	SetDlgItemText(curCustomerDialog, IDC_CUSTOMER_LAST_CONTACT_TYPE, lastContactType.c_str());
 
 
-	SetDlgItemText(curContactDialog, IDC_CUSTOMER_NOTES,backEnd.curCustomer.notes.c_str() );
+	SetDlgItemText(curCustomerDialog, IDC_CUSTOMER_NOTES,backEnd.curCustomer.notes.c_str() );
 
     string contactAddedDate = "Customer Added: "+ backEnd.curCustomer.dateAdded.ToString();
-	SetDlgItemText(curContactDialog, IDC_CUSTOMER_ADDED_DATE, contactAddedDate.c_str());
+	SetDlgItemText(curCustomerDialog, IDC_CUSTOMER_ADDED_DATE, contactAddedDate.c_str());
 
 	backEnd.FillCurCusterContactList(backEnd.curCustomer.id, curCustomerConversationList);
 
 	vector<string> headers = { "Date","type","notes","Successful"};
-	convoListView = CreateListView(curContactDialog,IDC_CONVO_LIST_VIEW, headers, 460, 300, 400, 185, 100);
+	convoListView = CreateListView(curCustomerDialog,IDC_CONVO_LIST_VIEW, headers, 460, 300, 400, 185, 100);
+
+	activeCustomerCheck = GetDlgItem(curCustomerDialog, IDC_IS_ACTIVE_CUSTOMER);
+	if (backEnd.curCustomer.active)
+		SendMessage(activeCustomerCheck, BM_SETCHECK, BST_CHECKED, 0);
+	else
+		SendMessage(activeCustomerCheck, BM_SETCHECK, BST_UNCHECKED, 0);
 	
 	FillCustomerConvoListViewItems(convoListView, curCustomerConversationList);
-	ShowWindow(curContactDialog, SW_SHOW);
+	ShowWindow(curCustomerDialog, SW_SHOW);
 }
 //----------------------------------------------------------------------------------------------------------------
 //the cords was created with a resrouce editor, everything else was done by hand :(
@@ -197,16 +213,16 @@ void FillCustomerStructFromCustomerDialog()
 	//if (backEnd.curCustomer.id < 1)
 	//	msgBoxOnError = true;
 
-	backEnd.curCustomer.name = GetTextFieldData(curContactDialog, IDC_CUSTOMER_NAME,msgBoxOnError);
-	backEnd.curCustomer.email = GetTextFieldData(curContactDialog, IDC_CUSTOMER_EMAIL,msgBoxOnError);
-	backEnd.curCustomer.phone = GetTextFieldData(curContactDialog, IDC_CUSTOMER_PHONE,msgBoxOnError);
-	backEnd.curCustomer.uniqueName = GetTextFieldData(curContactDialog, IDC_CUSTOMER_UNIQUE_NAME,msgBoxOnError);
+	backEnd.curCustomer.name = GetTextFieldData(curCustomerDialog, IDC_CUSTOMER_NAME,msgBoxOnError);
+	backEnd.curCustomer.email = GetTextFieldData(curCustomerDialog, IDC_CUSTOMER_EMAIL,msgBoxOnError);
+	backEnd.curCustomer.phone = GetTextFieldData(curCustomerDialog, IDC_CUSTOMER_PHONE,msgBoxOnError);
+	backEnd.curCustomer.uniqueName = GetTextFieldData(curCustomerDialog, IDC_CUSTOMER_UNIQUE_NAME,msgBoxOnError);
 	
-	backEnd.curCustomer.nextContactDate = DateTime (GetTextFieldData(curContactDialog, IDC_CUSTOMER_NEXT_CONTACT_DATE));
+	backEnd.curCustomer.nextContactDate = DateTime (GetTextFieldData(curCustomerDialog, IDC_CUSTOMER_NEXT_CONTACT_DATE));
 	backEnd.curCustomer.lastContactDate = DateTime::Now();
 	backEnd.curCustomer.dateAdded = DateTime::Now();
 	//this has a largert buffer for notes
-	backEnd.curCustomer.notes = GetTextAreaData(curContactDialog, IDC_CUSTOMER_NOTES,msgBoxOnError);
+	backEnd.curCustomer.notes = GetTextAreaData(curCustomerDialog, IDC_CUSTOMER_NOTES,msgBoxOnError);
 
 	/*if (!backEnd.curCustomer.email.empty())
 		backEnd.curCustomer.uniqueName = backEnd.curCustomer.email;
@@ -375,7 +391,12 @@ INT_PTR CALLBACK CurCustomerView(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
         return (INT_PTR)TRUE;
 
     case WM_COMMAND:
-        if (LOWORD(wParam) == IDC_SAVE_CUSTOMER)
+		if (LOWORD(wParam) == IDC_IS_ACTIVE_CUSTOMER)
+		{
+			backEnd.curCustomer.active = IsDlgButtonChecked(curCustomerDialog, IDC_IS_ACTIVE_CUSTOMER);
+		}
+
+		if (LOWORD(wParam) == IDC_SAVE_CUSTOMER)
         {
             //update db info
 			FillCustomerStructFromCustomerDialog();
@@ -387,6 +408,7 @@ INT_PTR CALLBACK CurCustomerView(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 			{
 				backEnd.curCustomer.Clear();
 				EndDialog(hDlg, LOWORD(wParam));
+				RefreshMainWindowsContactList();
 				return (INT_PTR)TRUE;
 			}
         }
