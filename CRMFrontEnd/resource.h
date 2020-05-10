@@ -62,6 +62,10 @@
 #define IDC_ADD_CUSTOMER					1028
 #define IDC_CONVO_LIST_VIEW					1029
 #define IDC_IS_ACTIVE_CUSTOMER				1030
+#define IDC_TAG_LIST_VIEW					1031
+#define IDC_ADD_NEW_TAGS_STATIC				1032
+#define IDC_ADD_NEW_TAGS_OK					1033
+#define IDC_ADD_NEW_TAGS_TEXT				1034
 
 // Next default values for new objects
 //

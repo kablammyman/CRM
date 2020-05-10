@@ -13,10 +13,26 @@
 	return 0;
 }*/
 
-CRMBackEnd::CRMBackEnd()
+void CRMBackEnd::SetDB(string dbPath)
 {
-	crm = new CRM("D:\\source\\CRM\\CRM.db");
+	//crm = new CRM("D:\\source\\CRM\\CRM.db");
+	if(crm == nullptr)
+		crm = new CRM(dbPath);
+	else
+	{
+		delete crm;
+		crm = nullptr;
+		crm = new CRM(dbPath);
+	}
 }
+
+CRMBackEnd::CRMBackEnd(string dbPath)
+{
+	//crm = new CRM("D:\\source\\CRM\\CRM.db");
+	SetDB(dbPath);
+}
+
+
 void CRMBackEnd::DoEmailLookup(string email )
 {
 	curCustomer = crm->GetCustomerByEmail(email);
@@ -46,6 +62,13 @@ bool CRMBackEnd::SaveCurrentContactInfo()
 
 void CRMBackEnd::FillTodaysCusterContactList(vector<CRM::Customer> &list)
 {
+	vector<CRM::Customer> cust;
+	crm->GetAllContacts(cust);
+	for(size_t i = 0; i < cust.size(); i++)
+	{
+		crm->AddCustomerToTagDB(cust[i]);
+	}
+
 	list = crm->GetTodaysContacts();
 	vector<CRM::Customer> overdue = crm->GetOverdueContacts();
 	for (int i = 0; i < overdue.size(); i++)
@@ -57,4 +80,10 @@ void CRMBackEnd::FillTodaysCusterContactList(vector<CRM::Customer> &list)
 void CRMBackEnd::FillCurCusterContactList(int customerID, vector<CRM::ContactDetails>& list)
 {
 	list = crm->GetAllCustomerContact(customerID);	
+}
+
+void CRMBackEnd::AddTags(string csvLine)
+{
+	vector<string> newTags = StringUtils::Tokenize(csvLine,",");
+	crm->AddTagsToCustomer(curCustomer.id,newTags);
 }

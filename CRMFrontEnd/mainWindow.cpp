@@ -13,6 +13,8 @@ HWND addCustomerContactDialog;
 HWND emailText;
 HWND emailLookup;
 HWND emailButton;
+HWND addNewTagsText;
+HWND addNewTagsButton;
 
 HWND nameText;
 HWND nameLookup;
@@ -27,6 +29,8 @@ HWND curContactsList;
 HWND createContactButton;
 HWND mainListView;
 HWND convoListView;
+HWND tagListView;
+
 CRMBackEnd backEnd;
 vector<CRM::Customer> todaysContactList;
 vector<CRM::ContactDetails> curCustomerConversationList;
@@ -103,6 +107,7 @@ void InitMainWindow(HWND hDlg)
 	vector<string> headers = { "name","email","next contact","last contact","days over due" };
 	mainListView = CreateListView(mainWindowHandle, IDM_LIST_VIEW_RESULTS, headers,staticX, 190, WINDOW_WIDTH - (staticX*4)  ,WINDOW_HEIGHT/2,150);
 
+	backEnd.SetDB("D:\\source\\CRM\\CRM.db");
 	
 	RefreshMainWindowsContactList();
 	createContactButton = CreateWindow(TEXT("BUTTON"), TEXT("Create New Customer"), WS_VISIBLE | WS_CHILD | WS_TABSTOP | 0x00000001, (WINDOW_WIDTH /2) - (bigButtonWidth/2), WINDOW_HEIGHT - 194, bigButtonWidth, 98, hDlg, (HMENU)IDC_ADD_CUSTOMER, NULL, NULL);
@@ -171,7 +176,13 @@ void InitCurCustomerDialog()
 
 	vector<string> headers = { "Date","type","notes","Successful"};
 	convoListView = CreateListView(curCustomerDialog,IDC_CONVO_LIST_VIEW, headers, 460, 300, 400, 185, 100);
+	vector<string> tagHeaders = {"ID","Tag"};
+	tagListView = CreateListView(curCustomerDialog,IDC_TAG_LIST_VIEW, tagHeaders, 600, 100, 250, 85, 100);
 
+	CreateWindow( TEXT("STATIC"), TEXT("Add tags(seperate by commas)"), WS_VISIBLE | WS_CHILD | WS_GROUP | SS_LEFT,        600, 185, 200,20,curCustomerDialog, (HMENU)IDC_ADD_NEW_TAGS_STATIC, NULL, NULL);
+	addNewTagsButton = CreateWindow(TEXT("BUTTON"), TEXT("Add Tags"), WS_VISIBLE | WS_CHILD | WS_TABSTOP | 0x00000001,     600, 225, 100,20, curCustomerDialog, (HMENU)IDC_ADD_NEW_TAGS_OK, NULL, NULL);
+	addNewTagsText = CreateWindow(TEXT("Edit"),TEXT (""), WS_VISIBLE | WS_CHILD | WS_TABSTOP | WS_BORDER | ES_AUTOHSCROLL, 600, 200, 250,23, curCustomerDialog, (HMENU)IDC_ADD_NEW_TAGS_TEXT, NULL, NULL);
+	
 	activeCustomerCheck = GetDlgItem(curCustomerDialog, IDC_IS_ACTIVE_CUSTOMER);
 	if (backEnd.curCustomer.active)
 		SendMessage(activeCustomerCheck, BM_SETCHECK, BST_CHECKED, 0);
@@ -179,6 +190,8 @@ void InitCurCustomerDialog()
 		SendMessage(activeCustomerCheck, BM_SETCHECK, BST_UNCHECKED, 0);
 	
 	FillCustomerConvoListViewItems(convoListView, curCustomerConversationList);
+	vector<string> tagList = {"test1","test2","test3"};
+	FillCustomerTagListViewItems(tagListView, tagList);
 	ShowWindow(curCustomerDialog, SW_SHOW);
 }
 //----------------------------------------------------------------------------------------------------------------
@@ -276,7 +289,7 @@ HWND CreateListView(HWND hwndParent,int windowsID, vector<string> colNames,int x
 	return (hWndListView);
 }
 //----------------------------------------------------------------------------------------------------------------
-BOOL FillCustomerListViewItems(HWND hWndListView, vector<CRM::Customer> items)
+BOOL FillCustomerListViewItems(HWND hWndListView, vector<CRM::Customer> &items)
 {
 	DateTime today;
 	today.SetCurrentDateTime();
@@ -331,7 +344,7 @@ BOOL FillCustomerListViewItems(HWND hWndListView, vector<CRM::Customer> items)
 	return TRUE;
 }
 //----------------------------------------------------------------------------------------------------------------
-BOOL FillCustomerConvoListViewItems(HWND hWndListView, vector<CRM::ContactDetails> items)
+BOOL FillCustomerConvoListViewItems(HWND hWndListView, vector<CRM::ContactDetails> &items)
 {
 	//for (size_t index = 0; index < items.size(); index++)
 	//the lsit view push items to the bottom of the list as you add them
@@ -370,6 +383,39 @@ BOOL FillCustomerConvoListViewItems(HWND hWndListView, vector<CRM::ContactDetail
 		else
 			temp = "no";
 		lvI.pszText = (LPSTR)temp.c_str();
+		SendMessage(hWndListView, LVM_SETITEM, 0, (LPARAM)&lvI); // Enter text to SubItems
+	}
+
+	return TRUE;
+}
+//----------------------------------------------------------------------------------------------------------------
+BOOL FillCustomerTagListViewItems(HWND hWndListView, vector<string> &items)
+{
+	//col 1 is the "id" (meaningless) and col 2 is the tags assocaited with this customer
+	string temp;
+	ListView_SetColumnWidth(hWndListView, 0, 20);
+	ListView_SetColumnWidth(hWndListView, 1, LVSCW_AUTOSIZE_USEHEADER);
+	for (int index = items.size() - 1; index >= 0; index--)
+	{
+		LVITEM lvI;
+
+		// Initialize LVITEM members that are common to all items.
+		lvI.mask = LVIF_TEXT | LVIF_PARAM; //// Initialize LV_ITEM members that are common to all items.
+		lvI.stateMask = 0;
+		lvI.state = 0;
+		// structures
+
+		lvI.mask = LVIF_TEXT;   // Text Style
+		lvI.cchTextMax = 256; // Max size of test
+		lvI.iItem = 0;          // choose item  
+		lvI.iSubItem = 0;       // Put in first coluom
+		temp = to_string(index+1);
+		lvI.pszText = (LPSTR)temp.c_str(); // Text to display 
+
+		SendMessage(hWndListView, LVM_INSERTITEM, 0, (LPARAM)&lvI); // Send info to the Listview
+
+		lvI.iSubItem = 1;
+		lvI.pszText = (LPSTR)items[index].c_str();
 		SendMessage(hWndListView, LVM_SETITEM, 0, (LPARAM)&lvI); // Enter text to SubItems
 	}
 
@@ -417,6 +463,13 @@ INT_PTR CALLBACK CurCustomerView(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 			InitAddCustomerContactDialog(true);
 			return (INT_PTR)TRUE;
         }
+
+		if (LOWORD(wParam) == IDC_ADD_NEW_TAGS_OK)
+		{
+			string text = GetTextFieldData(curCustomerDialog, IDC_ADD_NEW_TAGS_TEXT);
+			backEnd.AddTags(text);
+			return (INT_PTR)TRUE;
+		}
 
 		if (LOWORD(wParam) == IDCANCEL)
 		{

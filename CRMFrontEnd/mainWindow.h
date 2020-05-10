@@ -44,8 +44,9 @@ INT_PTR CALLBACK CurCustomerView(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK AddCustomerContactView(HWND, UINT, WPARAM, LPARAM);
 
 HWND CreateListView(HWND hwndParent, int windowsID, vector<string> colNames, int x, int y, int w, int h, int size);
-BOOL FillCustomerListViewItems(HWND hWndListView, vector<CRM::Customer> items);
-BOOL FillCustomerConvoListViewItems(HWND hWndListView, vector<CRM::ContactDetails> items);
+BOOL FillCustomerListViewItems(HWND hWndListView, vector<CRM::Customer> &items);
+BOOL FillCustomerConvoListViewItems(HWND hWndListView, vector<CRM::ContactDetails> &items);
+BOOL FillCustomerTagListViewItems(HWND hWndListView, vector<string> &items);
 
 LRESULT MainWindowNotifyHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 LRESULT CusCustomerNotifyHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

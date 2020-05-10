@@ -90,13 +90,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)CRMLib;$(MY_SQLITE3_UTILS);$(MY_STRING_UTILS);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)CRMLib;$(MY_SQLITE3_UTILS);$(MY_STRING_UTILS);$(MY_TAGGING_UTILS);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(MY_X64_DEBUG_LIBS);;$(OutDir)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>CRMLib.lib;SQLiteUtils.lib;StringUtils.lib;sqlite3.lib;Comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>CRMLib.lib;SQLiteUtils.lib;StringUtils.lib;TaggingUtils.lib;sqlite3.lib;Comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -141,7 +141,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)CRMLib;$(MY_SQLITE3_UTILS);$(MY_STRING_UTILS);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)CRMLib;$(MY_SQLITE3_UTILS);$(MY_STRING_UTILS);$(MY_TAGGING_UTILS);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -149,7 +149,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(MY_X64_RELEASE_LIBS);$(TargetDir)\$(Configuration);$(OutDir)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>CRMLib.lib;SQLiteUtils.lib;StringUtils.lib;sqlite3.lib;Comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>CRMLib.lib;SQLiteUtils.lib;StringUtils.lib;TaggingUtils.lib;sqlite3.lib;Comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

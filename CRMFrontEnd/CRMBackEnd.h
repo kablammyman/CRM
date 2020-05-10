@@ -12,7 +12,9 @@ class CRMBackEnd
 public:
 	CRM::Customer curCustomer;
 	CRM::ContactDetails curContactDetails;
-	CRMBackEnd();
+	CRMBackEnd(){}
+	CRMBackEnd(string dbPath);
+	void SetDB(string dbPath);
 	void DoEmailLookup(string email);
 	void DoNameLookup(string name);
 	void DoPhoneLookup(string phone);
@@ -20,4 +22,5 @@ public:
 	bool SaveCurrentContactInfo();
 	void FillTodaysCusterContactList(vector<CRM::Customer> &list);
 	void FillCurCusterContactList(int customerID, vector<CRM::ContactDetails>& list);
+	void AddTags(string csvLine);
 };

@@ -3,11 +3,14 @@
 #include <vector>
 #include "DatabaseController.h"
 #include "DateTime.h"
+#include "TaggingUtils.h"
+
 using namespace std;
 class CRM
 {
 private:
 	DatabaseController dbController;
+	TaggingUtils tags;
 	bool verbose = true;
 	vector<string> customerQuereyList;
 	vector<string> contactQuereyList;
@@ -43,6 +46,8 @@ public:
 		DateTime lastContactDate;
 		DateTime nextContactDate;
 		DateTime dateAdded;
+		vector<string> tags;
+		
 		Customer() { id = 0; }
 		Customer(string n, string p,string e, string no)
 		{
@@ -84,9 +89,16 @@ public:
 	Customer GetCustomerByName(string name);
 	Customer GetCustomerByID(int id);
 	
+	//not sure how often this will eb used, but im using this to add existing folks to the tagging db
+	//after that, i prob wont need this again 
+	void GetAllContacts(vector<CRM::Customer> &customers);
+
 	void DeleteContact(Customer &customer);
 	void DeleteContactByEmail(string email);
-	
+
+	void AddCustomerToTagDB(Customer customer);
+	void AddTagToCustomer(int customer, string newtag);
+	void AddTagsToCustomer(int customer, vector<string> &newtags);
 	
 	void SetActiveStatus(int ID, int activeStatus);
 	int GetActiveStatus(int ID);
