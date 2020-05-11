@@ -49,7 +49,9 @@ void CRMBackEnd::DoPhoneLookup(string phone )
 bool CRMBackEnd::SaveCurrentInfo()
 {
 	if (curCustomer.id < 1)//new entry
+	{
 		return crm->AddNewCustomerEntry(curCustomer);
+	}
 	else
 		return crm->UpdateCustomerEntry(curCustomer);
 }
@@ -86,4 +88,9 @@ void CRMBackEnd::AddTags(string csvLine)
 {
 	vector<string> newTags = StringUtils::Tokenize(csvLine,",");
 	crm->AddTagsToCustomer(curCustomer.id,newTags);
+}
+
+vector<string> CRMBackEnd::GetAllTagsForCustomer(int curCustomerID)
+{
+	return crm->GetAllCustomerTags(curCustomerID);
 }

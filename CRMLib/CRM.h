@@ -110,6 +110,9 @@ public:
 	bool AddNewContactEntry(CRM::ContactDetails &contact);
 	ContactDetails GetContactEntry(int contactID);
 	vector<CRM::ContactDetails> GetAllCustomerContact(int customerID);
+	vector<string> GetAllCustomerTags(int customerID);
+
+
 private:
 	void FillSingleCustomerFromDBResults(vector <DatabaseController::DBResult> &dbResults, CRM::Customer &customer,int index);
 	void FillSingleContactDetailFromDBResults(vector <DatabaseController::DBResult>& dbResults, CRM::ContactDetails& contact, int index);

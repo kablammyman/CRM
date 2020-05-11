@@ -23,4 +23,5 @@ public:
 	void FillTodaysCusterContactList(vector<CRM::Customer> &list);
 	void FillCurCusterContactList(int customerID, vector<CRM::ContactDetails>& list);
 	void AddTags(string csvLine);
+	vector<string> GetAllTagsForCustomer(int curCustomerID);
 };

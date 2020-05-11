@@ -30,6 +30,7 @@ HWND createContactButton;
 HWND mainListView;
 HWND convoListView;
 HWND tagListView;
+SYSTEMTIME  contactDate;
 
 CRMBackEnd backEnd;
 vector<CRM::Customer> todaysContactList;
@@ -190,7 +191,7 @@ void InitCurCustomerDialog()
 		SendMessage(activeCustomerCheck, BM_SETCHECK, BST_UNCHECKED, 0);
 	
 	FillCustomerConvoListViewItems(convoListView, curCustomerConversationList);
-	vector<string> tagList = {"test1","test2","test3"};
+	vector<string> tagList = backEnd.GetAllTagsForCustomer(backEnd.curCustomer.id);
 	FillCustomerTagListViewItems(tagListView, tagList);
 	ShowWindow(curCustomerDialog, SW_SHOW);
 }
@@ -201,6 +202,7 @@ void InitAddCustomerContactDialog(bool isNewContact)
 	addCustomerContactDialog = CreateDialog(mainInst, MAKEINTRESOURCE(IDD_ADD_CUSTOMER_CONTACT_VIEW), mainWindowHandle, AddCustomerContactView);
 	succesfulContactCheck = GetDlgItem(addCustomerContactDialog, IDC_IS_SUCCESSFUL_CONTACT);
 
+
 	if (!isNewContact)
 	{
 		SetDlgItemText(addCustomerContactDialog, IDC_CONTACT_NOTES, backEnd.curContactDetails.notes.c_str());
@@ -210,9 +212,15 @@ void InitAddCustomerContactDialog(bool isNewContact)
 			SendMessage(succesfulContactCheck, BM_SETCHECK, BST_CHECKED, 0);
 		else
 			SendMessage(succesfulContactCheck, BM_SETCHECK, BST_UNCHECKED, 0);
+		contactDate.wYear = backEnd.curContactDetails.date.year;
+		contactDate.wMonth = backEnd.curContactDetails.date.month;
+		contactDate.wDay = backEnd.curContactDetails.date.day;
 
 	}
-
+	else
+	{
+		GetSystemTime(&contactDate);
+	}
 	backEnd.curContactDetails.customerID = backEnd.curCustomer.id;
 	ShowWindow(addCustomerContactDialog, SW_SHOW);
 }
@@ -249,7 +257,13 @@ void FillCustomerContactStructFromContactDialog()
 	bool msgBoxOnError = false;
 
 	backEnd.curContactDetails.type = GetTextFieldData(addCustomerContactDialog, IDC_CONTACT_TYPE,msgBoxOnError);
-	backEnd.curContactDetails.date = DateTime::Now();// GetTextFieldData(curContactDialog, IDC_CUSTOMER_PHONE, msgBoxOnError);
+	DateTime myContactDate;
+
+	myContactDate.year = contactDate.wYear;
+	myContactDate.month = contactDate.wMonth;
+	myContactDate.day = contactDate.wDay;
+
+	backEnd.curContactDetails.date =myContactDate.ToString();
 	backEnd.curContactDetails.customerID = backEnd.curCustomer.id; // GetTextFieldData(curContactDialog, IDC_CUSTOMER_UNIQUE_NAME, msgBoxOnError);
 
 	//this has a largert buffer for notes
@@ -392,6 +406,17 @@ BOOL FillCustomerConvoListViewItems(HWND hWndListView, vector<CRM::ContactDetail
 BOOL FillCustomerTagListViewItems(HWND hWndListView, vector<string> &items)
 {
 	//col 1 is the "id" (meaningless) and col 2 is the tags assocaited with this customer
+
+	int iNumItems = ListView_GetItemCount(hWndListView);
+	for (int i = 0; i < iNumItems; i++)
+	{
+		// update this item
+		ListView_DeleteItem(hWndListView, i);
+		//listVector.erase(listVector.begin() + listId);
+	}
+
+	
+
 	string temp;
 	ListView_SetColumnWidth(hWndListView, 0, 20);
 	ListView_SetColumnWidth(hWndListView, 1, LVSCW_AUTOSIZE_USEHEADER);
@@ -422,7 +447,16 @@ BOOL FillCustomerTagListViewItems(HWND hWndListView, vector<string> &items)
 	return TRUE;
 }
 //----------------------------------------------------------------------------------------------------------------
+void SaveTags()
+{
+	string text = GetTextFieldData(curCustomerDialog, IDC_ADD_NEW_TAGS_TEXT);
+	if(text.empty())
+		return;
 
+	backEnd.AddTags(text);
+	vector<string> tagList = backEnd.GetAllTagsForCustomer(backEnd.curCustomer.id);
+	FillCustomerTagListViewItems(tagListView, tagList);
+}
 // Message handler for main customer box.
 INT_PTR CALLBACK CurCustomerView(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -452,6 +486,7 @@ INT_PTR CALLBACK CurCustomerView(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 			}
 			else
 			{
+				SaveTags();
 				backEnd.curCustomer.Clear();
 				EndDialog(hDlg, LOWORD(wParam));
 				RefreshMainWindowsContactList();
@@ -466,8 +501,7 @@ INT_PTR CALLBACK CurCustomerView(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 
 		if (LOWORD(wParam) == IDC_ADD_NEW_TAGS_OK)
 		{
-			string text = GetTextFieldData(curCustomerDialog, IDC_ADD_NEW_TAGS_TEXT);
-			backEnd.AddTags(text);
+			SaveTags();
 			return (INT_PTR)TRUE;
 		}
 
@@ -486,18 +520,32 @@ INT_PTR CALLBACK CurCustomerView(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 INT_PTR CALLBACK AddCustomerContactView(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     UNREFERENCED_PARAMETER(lParam);
+	
     switch (message)
     {
     case WM_INITDIALOG:
         return (INT_PTR)TRUE;
 
+	break;
+	case WM_NOTIFY: //for the date picker
+	{
+		LPNMHDR hdr = (LPNMHDR)lParam;
+		if(hdr->code == DTN_DATETIMECHANGE) 
+		{
+			LPNMDATETIMECHANGE lpChange = (LPNMDATETIMECHANGE)lParam;
+			contactDate = lpChange->st;
+		}
+	}
+	break;	
+	
     case WM_COMMAND:
 		//set the state int he contact struct of the "is succesful" check box
 		if (LOWORD(wParam) == IDC_IS_SUCCESSFUL_CONTACT)
 		{
 			backEnd.curContactDetails.successfulContact = IsDlgButtonChecked(addCustomerContactDialog, IDC_IS_SUCCESSFUL_CONTACT);
 		}
-		
+
+	
 		if (LOWORD(wParam) == IDOK)
         {
 			FillCustomerContactStructFromContactDialog();
