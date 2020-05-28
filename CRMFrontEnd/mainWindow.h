@@ -24,6 +24,11 @@ extern 	HWND phoneText;
 extern 	HWND phoneLookup;
 extern 	HWND phoneButton;
 
+extern HWND tagText;
+extern HWND tagLookup;
+extern HWND tagButton;
+
+
 extern 	HWND curContactsList;
 extern 	HWND createContactButton;
 extern  HWND mainListView;

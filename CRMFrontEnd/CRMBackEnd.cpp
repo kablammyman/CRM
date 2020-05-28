@@ -1,21 +1,10 @@
 #include "stdafx.h"
 #include "CRMBackEnd.h"
 
-/*int test()
-{
-	CRM crm("D:\\source\\CRM\\CRM.db");
-
-	//CRM::Customer customer= crm.GetContact("schwheatbaybeeghrey@gmail.com");
-	//cout << customer.name << endl;
-	
-	//crm.DeactivateOldCustomers();
-	
-	return 0;
-}*/
-
 void CRMBackEnd::SetDB(string dbPath)
 {
 	//crm = new CRM("D:\\source\\CRM\\CRM.db");
+	
 	if(crm == nullptr)
 		crm = new CRM(dbPath);
 	else
@@ -94,3 +83,15 @@ vector<string> CRMBackEnd::GetAllTagsForCustomer(int curCustomerID)
 {
 	return crm->GetAllCustomerTags(curCustomerID);
 }
+
+void CRMBackEnd::GetAllCustersThatHasTag(string tag,vector<CRM::Customer> &list)
+{
+	list = 	crm->GetAllCustomersWithTag(tag);
+}
+
+void CRMBackEnd::GetAllCustersThatHasAllTheseTag(string tagsListString,vector<CRM::Customer> &list)
+{
+	vector<string> tagList = StringUtils::Tokenize(tagsListString,",");
+	list = 	crm->GetAllCustomersWithTheseTags(tagList);
+}
+

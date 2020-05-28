@@ -23,6 +23,11 @@ HWND nameButton;
 HWND phoneText;
 HWND phoneLookup;
 HWND phoneButton;
+
+HWND tagText;
+HWND tagLookup;
+HWND tagButton;
+
 HWND succesfulContactCheck;
 HWND activeCustomerCheck;
 HWND curContactsList;
@@ -47,8 +52,11 @@ string GetTextFieldData(HWND windowHandle, int dialogID,  bool msgboxOnError = t
 		char temp[12];
 
 		//wsprintf(temp,L"error: %d", x);
-		sprintf_s(temp,"error: %d", x);
-		MessageBox(NULL, temp , NULL, NULL);
+		if(x != 0)
+		{
+			sprintf_s(temp,"GetTextFieldData error: %d", x);
+			MessageBox(NULL, temp , NULL, NULL);
+		}
 	}
 	ret = buffer;
 	return ret;
@@ -72,15 +80,22 @@ string GetTextAreaData(HWND windowHandle, int dialogID,  bool msgboxOnError = tr
 	return ret;
 }
 //----------------------------------------------------------------------------------------------------------------
-void RefreshMainWindowsContactList()
+//right now, i will use this list when i search for tags or if im getting todays contacts.
+//later i will maek this more generic
+void RefreshMainWindowsContactList(bool todaysContacts = true)
 {
 	if (mainListView == nullptr)
 		return;
 	ListView_DeleteAllItems(mainListView);
-	todaysContactList.clear();
-	backEnd.FillTodaysCusterContactList(todaysContactList);
+	if(todaysContacts)
+	{
+		todaysContactList.clear();
+		backEnd.FillTodaysCusterContactList(todaysContactList);
+	}
 	FillCustomerListViewItems(mainListView, todaysContactList);
 }
+
+
 //----------------------------------------------------------------------------------------------------------------
 //the cords was created with a resrouce editor, everything else was done by hand :(
 void InitMainWindow(HWND hDlg)
@@ -103,15 +118,20 @@ void InitMainWindow(HWND hDlg)
 	phoneLookup = CreateWindow(TEXT("Edit"), TEXT(""), WS_VISIBLE | WS_CHILD | WS_TABSTOP | WS_BORDER | ES_AUTOHSCROLL, editX, 98, 360, 23, hDlg, (HMENU)IDC_PHONE_LOOKUP,NULL, NULL);
 	phoneButton = CreateWindow(TEXT("BUTTON"), TEXT("Go!"), WS_VISIBLE | WS_CHILD | WS_TABSTOP | 0x00000001, buttonX, 98, 90, 23, hDlg, (HMENU)IDC_PHONE_LOOKUP_OK, NULL, NULL);
 
-	
+	tagText = CreateWindow(TEXT("STATIC"), TEXT("Tag Lookup"), WS_VISIBLE | WS_CHILD | WS_GROUP | SS_LEFT, staticX, 139, 75, 15, hDlg, (HMENU)IDC_TAG_LOOKUP_STATIC, NULL, NULL);
+	tagLookup = CreateWindow(TEXT("Edit"), TEXT(""), WS_VISIBLE | WS_CHILD | WS_TABSTOP | WS_BORDER | ES_AUTOHSCROLL, editX, 139, 360, 23, hDlg, (HMENU)IDC_TAG_LOOKUP,NULL, NULL);
+	tagButton = CreateWindow(TEXT("BUTTON"), TEXT("Go!"), WS_VISIBLE | WS_CHILD | WS_TABSTOP | 0x00000001, buttonX, 139, 90, 23, hDlg, (HMENU)IDC_TAG_LOOKUP_OK, NULL, NULL);
+
 	curContactsList = CreateWindow(TEXT("STATIC"), TEXT("People To Contact Today"), WS_VISIBLE | WS_CHILD | WS_GROUP | SS_LEFT, 398, 170, 143, 16, hDlg, (HMENU)0, NULL, NULL);
 	vector<string> headers = { "name","email","next contact","last contact","days over due" };
 	mainListView = CreateListView(mainWindowHandle, IDM_LIST_VIEW_RESULTS, headers,staticX, 190, WINDOW_WIDTH - (staticX*4)  ,WINDOW_HEIGHT/2,150);
 
-	backEnd.SetDB("D:\\source\\CRM\\CRM.db");
+	//backEnd.SetDB("D:\\source\\CRM\\CRM.db");
+	backEnd.SetDB("CRM.db");
 	
 	RefreshMainWindowsContactList();
 	createContactButton = CreateWindow(TEXT("BUTTON"), TEXT("Create New Customer"), WS_VISIBLE | WS_CHILD | WS_TABSTOP | 0x00000001, (WINDOW_WIDTH /2) - (bigButtonWidth/2), WINDOW_HEIGHT - 194, bigButtonWidth, 98, hDlg, (HMENU)IDC_ADD_CUSTOMER, NULL, NULL);
+	
 }
 //----------------------------------------------------------------------------------------------------------------
 bool ProcessMainScreenButtons(string searchItem,int searchType)
@@ -124,6 +144,16 @@ bool ProcessMainScreenButtons(string searchItem,int searchType)
 	else if(searchType == IDC_NAME_LOOKUP_OK)
 		backEnd.DoNameLookup(searchItem);
 
+	else if(searchType == IDC_TAG_LOOKUP_OK)
+	{
+		search = false;
+		todaysContactList.clear();
+
+		backEnd.GetAllCustersThatHasAllTheseTag(searchItem,todaysContactList);
+
+		RefreshMainWindowsContactList(false);
+		return false;
+	}
 	if (searchType == IDC_ADD_CUSTOMER)
 	{
 		search = false;
@@ -689,6 +719,11 @@ BOOL CheckMainWindowInput(WPARAM wParam, std::string &output)
 	if (wParam == IDC_PHONE_LOOKUP_OK)
 	{
 		output = GetTextFieldData(mainWindowHandle, IDC_PHONE_LOOKUP);
+		return (INT_PTR)TRUE;
+	}
+	if (wParam == IDC_TAG_LOOKUP_OK)
+	{
+		output = GetTextFieldData(mainWindowHandle, IDC_TAG_LOOKUP);
 		return (INT_PTR)TRUE;
 	}
 	else if (wParam == IDC_ADD_CUSTOMER)

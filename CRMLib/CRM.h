@@ -111,7 +111,8 @@ public:
 	ContactDetails GetContactEntry(int contactID);
 	vector<CRM::ContactDetails> GetAllCustomerContact(int customerID);
 	vector<string> GetAllCustomerTags(int customerID);
-
+	vector<Customer> GetAllCustomersWithTag(string tag);
+	vector<Customer> GetAllCustomersWithTheseTags(vector<string>  tagList);
 
 private:
 	void FillSingleCustomerFromDBResults(vector <DatabaseController::DBResult> &dbResults, CRM::Customer &customer,int index);

@@ -67,6 +67,11 @@
 #define IDC_ADD_NEW_TAGS_OK					1033
 #define IDC_ADD_NEW_TAGS_TEXT				1034
 
+#define IDC_TAG_LOOKUP_STATIC				1035
+#define IDC_TAG_LOOKUP						1036
+#define IDC_TAG_LOOKUP_OK					1037
+
+
 // Next default values for new objects
 //
 #ifdef APSTUDIO_INVOKED
