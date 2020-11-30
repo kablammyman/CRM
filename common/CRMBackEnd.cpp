@@ -79,6 +79,11 @@ void CRMBackEnd::AddTags(string csvLine)
 	crm->AddTagsToCustomer(curCustomer.id,newTags);
 }
 
+void CRMBackEnd::AddTags(vector<string> &newTags)
+{
+	crm->AddTagsToCustomer(curCustomer.id, newTags);
+}
+
 vector<string> CRMBackEnd::GetAllTagsForCustomer(int curCustomerID)
 {
 	return crm->GetAllCustomerTags(curCustomerID);

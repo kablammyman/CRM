@@ -126,8 +126,7 @@ void InitMainWindow(HWND hDlg)
 	vector<string> headers = { "name","email","next contact","last contact","days over due" };
 	mainListView = CreateListView(mainWindowHandle, IDM_LIST_VIEW_RESULTS, headers,staticX, 190, WINDOW_WIDTH - (staticX*4)  ,WINDOW_HEIGHT/2,150);
 
-	//backEnd.SetDB("D:\\source\\CRM\\CRM.db");
-	backEnd.SetDB("CRM.db");
+	backEnd.SetDB("\\\\SERVER\\documents\\land investing\\Database\\CRM.db");
 	
 	RefreshMainWindowsContactList();
 	createContactButton = CreateWindow(TEXT("BUTTON"), TEXT("Create New Customer"), WS_VISIBLE | WS_CHILD | WS_TABSTOP | 0x00000001, (WINDOW_WIDTH /2) - (bigButtonWidth/2), WINDOW_HEIGHT - 194, bigButtonWidth, 98, hDlg, (HMENU)IDC_ADD_CUSTOMER, NULL, NULL);

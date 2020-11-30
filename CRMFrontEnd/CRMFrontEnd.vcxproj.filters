@@ -24,13 +24,7 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CRMFrontEnd.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="mainWindow.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CRMBackEnd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -44,7 +38,7 @@
     <ClCompile Include="mainWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CRMBackEnd.cpp">
+    <ClCompile Include="..\common\CRMBackEnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

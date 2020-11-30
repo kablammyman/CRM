@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2010
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30320.27
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CRMLib", "CRMLib\CRMLib.vcxproj", "{93EA2D46-0AAE-4F07-B558-C322C87CAE7E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CRMFrontEnd", "CRMFrontEnd\CRMFrontEnd.vcxproj", "{FB2B22E3-8BB0-4E69-A3DA-BC88C5FCEE91}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CRMCmd", "CRMCmd\CRMCmd.vcxproj", "{237EE1C5-730A-4BB6-8782-5FE743113D75}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +33,14 @@ Global
 		{FB2B22E3-8BB0-4E69-A3DA-BC88C5FCEE91}.Release|x64.Build.0 = Release|x64
 		{FB2B22E3-8BB0-4E69-A3DA-BC88C5FCEE91}.Release|x86.ActiveCfg = Release|Win32
 		{FB2B22E3-8BB0-4E69-A3DA-BC88C5FCEE91}.Release|x86.Build.0 = Release|Win32
+		{237EE1C5-730A-4BB6-8782-5FE743113D75}.Debug|x64.ActiveCfg = Debug|x64
+		{237EE1C5-730A-4BB6-8782-5FE743113D75}.Debug|x64.Build.0 = Debug|x64
+		{237EE1C5-730A-4BB6-8782-5FE743113D75}.Debug|x86.ActiveCfg = Debug|Win32
+		{237EE1C5-730A-4BB6-8782-5FE743113D75}.Debug|x86.Build.0 = Debug|Win32
+		{237EE1C5-730A-4BB6-8782-5FE743113D75}.Release|x64.ActiveCfg = Release|x64
+		{237EE1C5-730A-4BB6-8782-5FE743113D75}.Release|x64.Build.0 = Release|x64
+		{237EE1C5-730A-4BB6-8782-5FE743113D75}.Release|x86.ActiveCfg = Release|Win32
+		{237EE1C5-730A-4BB6-8782-5FE743113D75}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
