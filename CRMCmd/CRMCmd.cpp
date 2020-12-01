@@ -120,11 +120,14 @@ void ImportFromHangonsOutput(CRMBackEnd &cbe, string path)
 			string message = curCSV.GetColValue("message", j);
 			
 			//sometimes the name is embeded in the mssage, i need a way to find them
+			
 			if (cbe.curCustomer.name.empty())
 				cbe.curCustomer.name = cbe.FindNameInMessage(message);
+			
+			if (messageSender.find("Victor") == string::npos && messageSender.find("2340998") == string::npos)
 			if (cbe.curCustomer.email.empty())
 				cbe.curCustomer.email = cbe.FindEmailInMessage(message);
-			cbe.FindTagsInText(foundTags);
+			cbe.FindTagsInText(message,foundTags);
 
 			if (curConvo.date != date)
 			{
@@ -175,6 +178,14 @@ int main(int argc, const char *argv[])
 
 	if (args.IsArgEnabled("test"))
 	{
+		cout << cbe.FindEmailInMessage("Patricio.osorio400@gmail.com") << endl;
+		cout << cbe.FindEmailInMessage("email: Patricio.osorio400@gmail.com") << endl;
+		cout << cbe.FindEmailInMessage("email: Patricio.osorio400@gmail.com is that okay?") << endl;
+		cout << cbe.FindEmailInMessage("Okay, I'll create the docs in a few hours when I'm back in front of my computer. You can zelle me at victor@victorsvacantland.com") << endl;
+		string message = "its 2500 obo, you can check out the details here:\nhttps://victorsvacantland.com/parcels/Mobile/29_02_44_0_007_201.XXX/Mobile_parcel_29_02_44_0_007_201.XXX.php";
+		vector<string> foundTags;
+		cbe.FindTagsInText(message,  foundTags);
+		
 		exit(0);
 	}
 

@@ -100,3 +100,79 @@ void CRMBackEnd::GetAllCustersThatHasAllTheseTag(string tagsListString,vector<CR
 	list = 	crm->GetAllCustomersWithTheseTags(tagList);
 }
 
+string CRMBackEnd::FindNameInMessage(string message)
+{
+	StringUtils::ToUpper(message);
+	string name;
+	//vector<string> searchKeys = { "HELLO ","THIS IS ","MY NAME IS" };
+	string key = "MY NAME IS ";
+	size_t index = message.find(key);
+	if (index != string::npos)
+	{
+		size_t findComma = message.find(",", index);
+		size_t findDot = message.find(".", index);
+		size_t findAnd = message.find("AND", index);
+		size_t findSpace = message.find(" ", index);
+		//these are the ways I see the statment "my name is " ended, so i look for one of these so i can get the full name if its provided
+
+	}
+	return name;
+}
+string CRMBackEnd::FindEmailInMessage(string message)
+{
+	size_t found = message.find("@");
+	size_t start = found, end = found;
+	string email;
+	if (found != string::npos)
+	{
+		//first get the end of the email address part
+		while (start > 0 &&  message[start] != ' ' && message[start] != '\n' && message[start] != '\t')
+		{
+			start--;
+		}
+
+		//next get the end of the email address part
+		while (end < message.size() && message[end] != ' ' && message[end] != '\n' && message[end] != '\t')
+		{
+			end++;
+		}
+
+		email = StringUtils::StringClean(message.substr(start, end - start),true);
+	}
+	return email;
+}
+void CRMBackEnd::FindTagsInText(string message,vector<string>& foundTags)
+{
+	StringUtils::ToUpper(message);
+	//right now, im only looking for the url i send them OR some other indcator about where the lot is they are intersted in
+	vector<string> searchKeys = { "HTTP://VICTORSVACANTLAND.COM/PARCELS/","HTTPS://VICTORSVACANTLAND.COM/PARCELS/", "BURLESON","CALDWELL","HENDERSON","KEY RANCH","MAGNOLIA","FOUNTAIN", };
+	bool add = false;
+
+	string tag = StringUtils::GetWordFromListInLine(searchKeys, message,false);
+	
+	if (!tag.empty())
+	{
+		add = true;
+		//if i sent them a url, find out the county within the url
+		if (tag == "HTTP://VICTORSVACANTLAND.COM/PARCELS/" || tag == "HTTPS://VICTORSVACANTLAND.COM/PARCELS/")
+		{
+			size_t start = message.find(tag);
+			start += tag.size(); //(strlen of front part of url)
+			size_t end = message.find("/",start);
+			tag = message.substr(start, end - start);
+		}
+		else
+		{
+			for (size_t i = 0; i < foundTags.size(); i++)
+				if (foundTags[i] == tag)
+					add = false;
+		}
+	}
+	if (add)
+		foundTags.push_back(tag);
+}
+void CRMBackEnd::AddConvosToCurrentCustomer(vector<CRM::ContactDetails>& convos)
+{
+	for(size_t i = 0; i < convos.size(); i++)
+		crm->AddNewContactEntry(curContactDetails);
+}
