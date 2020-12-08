@@ -104,17 +104,25 @@ string CRMBackEnd::FindNameInMessage(string message)
 {
 	StringUtils::ToUpper(message);
 	string name;
-	//vector<string> searchKeys = { "HELLO ","THIS IS ","MY NAME IS" };
+	//vector<string> searchKeys = { "HELLO ","THIS IS ","MY NAME IS " };
+	vector<string> delims = { ",",".","AND"," I " };
 	string key = "MY NAME IS ";
 	size_t index = message.find(key);
 	if (index != string::npos)
 	{
-		size_t findComma = message.find(",", index);
-		size_t findDot = message.find(".", index);
-		size_t findAnd = message.find("AND", index);
-		size_t findSpace = message.find(" ", index);
-		//these are the ways I see the statment "my name is " ended, so i look for one of these so i can get the full name if its provided
-
+		//these are the ways I see the statment "my name is " ended, 
+		//so i look for one of these so i can get the full name if its provided
+		size_t nearestDelm = string::npos;
+		for (size_t i = 0; i < delims.size(); i++)
+		{
+			size_t curDelim = message.find(delims[i], index);
+			if (curDelim < nearestDelm)
+				nearestDelm = curDelim;
+		}
+		index += key.size();
+		if((nearestDelm - index) < 25)
+			name = StringUtils::StringClean(message.substr(index, nearestDelm - index), true);
+		StringUtils::ToProperNoun(name);
 	}
 	return name;
 }
@@ -145,7 +153,7 @@ void CRMBackEnd::FindTagsInText(string message,vector<string>& foundTags)
 {
 	StringUtils::ToUpper(message);
 	//right now, im only looking for the url i send them OR some other indcator about where the lot is they are intersted in
-	vector<string> searchKeys = { "HTTP://VICTORSVACANTLAND.COM/PARCELS/","HTTPS://VICTORSVACANTLAND.COM/PARCELS/", "BURLESON","CALDWELL","HENDERSON","KEY RANCH","MAGNOLIA","FOUNTAIN", };
+	vector<string> searchKeys = { "VICTORSVACANTLAND.COM/PARCELS/", "BURLESON","CALDWELL","HENDERSON","KEY RANCH","MAGNOLIA","FOUNTAIN", };
 	bool add = false;
 
 	string tag = StringUtils::GetWordFromListInLine(searchKeys, message,false);
@@ -154,7 +162,7 @@ void CRMBackEnd::FindTagsInText(string message,vector<string>& foundTags)
 	{
 		add = true;
 		//if i sent them a url, find out the county within the url
-		if (tag == "HTTP://VICTORSVACANTLAND.COM/PARCELS/" || tag == "HTTPS://VICTORSVACANTLAND.COM/PARCELS/")
+		if (tag == "VICTORSVACANTLAND.COM/PARCELS/")
 		{
 			size_t start = message.find(tag);
 			start += tag.size(); //(strlen of front part of url)

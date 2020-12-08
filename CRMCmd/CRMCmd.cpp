@@ -185,7 +185,11 @@ int main(int argc, const char *argv[])
 		string message = "its 2500 obo, you can check out the details here:\nhttps://victorsvacantland.com/parcels/Mobile/29_02_44_0_007_201.XXX/Mobile_parcel_29_02_44_0_007_201.XXX.php";
 		vector<string> foundTags;
 		cbe.FindTagsInText(message,  foundTags);
-		
+		cout << cbe.FindNameInMessage("Hello Victor. My name is José. Seen your post on CL that you have a unrestricted parcel for sale. Does the parcel have access to water and electricity hook up?") << endl;
+		cout << cbe.FindNameInMessage("Hello Victor! My name is Cathy and im interested in your land for sale in Caldwell") << endl;
+		cout << cbe.FindNameInMessage("Yes My name is Amancio Nunez\namancio.nunez82@gmail.com") << endl;
+		cout << cbe.FindNameInMessage("This is my e mail jjj8142@att.net my name is Rogelio Avila my address is 270 old potato rd,Paige Tx 78659") << endl;
+		cout << cbe.FindNameInMessage("My name is Leonard  looking for unrestricted land in the Fountain Florida area") << endl;
 		exit(0);
 	}
 
